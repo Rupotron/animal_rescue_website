@@ -1,0 +1,154 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Complete Your Donation</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <style>
+    body {
+  font-family: Arial, sans-serif;
+  background-image: url('img/animal-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  padding: 30px;
+}
+
+.container {
+  max-width: 500px;
+  margin: auto;
+  background:#e9a053;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 0 22px rgba(255, 140, 0, 0.3);
+}
+    h2 {
+      text-align: center;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn-pay { background-color: #28a745; color: white; }
+    .btn-upi { background-color: none; color: rgb(14, 13, 13); }
+    .btn-cancel { background-color: #dc3545; color: white; }
+    .qr-box {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .qr-box canvas {
+      margin: auto;
+    }
+    .card-details {
+      display: none;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Donate to RescueIt</h2>
+  <form id="donationForm">
+    <input type="text" id="name" placeholder="Your Name" required />
+    <input type="email" id="email" placeholder="Your Email" required />
+    <input type="text" id="plan" readonly />
+    <input type="text" id="amount" readonly />
+    <button type="button" class="btn-pay" onclick="showCardFields()">Pay with Card</button>
+    <div class="card-details" id="cardFields">
+      <input type="text" id="cardNumber" placeholder="Card Number" maxlength="16" required />
+      <input type="text" id="cardExpiry" placeholder="Expiry (MM/YY)" required />
+      <input type="text" id="cardCVV" placeholder="CVV" maxlength="3" required />
+      <button type="submit" class="btn-pay">Submit Card Payment</button>
+    </div>
+    <button type="button" class="btn-upi" onclick="generateUPI()">Pay with UPI</button>
+  </form>
+
+  <div class="qr-box" id="qrBox" style="display: none;">
+    <h3>Scan to Pay</h3>
+    <div id="qrcode" style="display: flex; justify-content: center;"></div>
+    <a id="upiLink" href="#" class="btn-upi" target="_blank" style="display: inline-block; margin-top: 10px;">Open in UPI App</a>
+    <p style="font-size: 0.9em; color: rgb(10, 45, 218);">You will also get a confirmation email after payment.</p>
+    <div class="container-fluid p-0">
+  <img src="img/upi-banner.jpeg" alt="UPI Payment Banner" class="img-fluid w-100" style="width: 100%; height: auto; display: block; margin: 20px 0;">
+</div>
+    <button onclick="finishPayment()" class="btn-pay" style="margin-top: 10px;">Done</button>
+    <button onclick="cancelPayment()" class="btn-cancel">Cancel</button>
+  </div>
+</div>
+
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const amount = urlParams.get('amount') || '0';
+  const plan = urlParams.get('plan') || 'Custom';
+
+  document.getElementById('amount').value = `₹${amount}`;
+  document.getElementById('plan').value = `${plan} Plan`;
+
+  function showCardFields() {
+    document.getElementById('cardFields').style.display = 'block';
+    document.getElementById('cardNumber').focus();
+  }
+
+  document.getElementById('donationForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const name = document.getElementById('name').value;
+    alert(`Thank you ${name}! Your ₹${amount} card payment was successful.`);
+    window.location.href = "donation.html";
+  });
+
+  function generateUPI() {
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+
+    if (!name || !email) {
+      alert("Please fill in your name and email.");
+      return;
+    }
+
+    const upiId = "luciferh562@oksbi";
+    const upiLink = `upi://pay?pa=${upiId}&pn=RescueIt&am=${amount}&cu=INR&tn=Donation from ${encodeURIComponent(name)}`;
+
+    document.getElementById("upiLink").href = upiLink;
+    document.getElementById("qrBox").style.display = "block";
+    document.getElementById("qrcode").innerHTML = "";
+
+    new QRCode(document.getElementById("qrcode"), {
+      text: upiLink,
+      width: 200,
+      height: 200,
+    });
+
+    document.getElementById("qrBox").scrollIntoView({ behavior: "smooth" });
+  }
+
+  function finishPayment() {
+    alert("Thank you for your donation!");
+    window.location.href = "donation.html";
+  }
+
+  function cancelPayment() {
+    const confirmCancel = confirm("Are you sure you want to cancel the payment?");
+    if (confirmCancel) {
+      window.location.href = "donation.html";
+    }
+  }
+</script>
+
+</body>
+</html>
